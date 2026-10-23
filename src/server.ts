@@ -1,7 +1,10 @@
 import express from "express";
+import habitRoutes from './routes/habits.js'
+
 
 const app = express();
 app.use(express.json());
+app.use(habitRoutes)
 
 app.get("/", (req, res) => {
     return res.json({ message: "API HabitPulse rodando liso" });
