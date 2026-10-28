@@ -75,4 +75,37 @@ router.post("/habits/:id/logs", async (req, res) => {
     return res.status(500).json({ error: "Erro interno ao registrar progresso." });
   }
 });
+
+// Rota DELETE para remover um hábito e seus logs associados
+router.delete("/habits/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Verifica se o hábito existe no banco
+    const habit = await prisma.habit.findUnique({
+      where: { id },
+    });
+
+    if (!habit) {
+      return res.status(404).json({ error: "Hábito não encontrado." });
+    }
+
+    // 2. Deleta primeiro os logs associados para respeitar a integridade do banco
+    await prisma.habitLog.deleteMany({
+      where: { habitId: id },
+    });
+
+    // 3. Deleta o hábito
+    await prisma.habit.delete({
+      where: { id },
+    });
+
+    // Retorna status 204 (No Content) indicando sucesso sem corpo de resposta
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Erro ao deletar hábito:", error);
+    return res.status(500).json({ error: "Erro interno ao deletar hábito." });
+  }
+});
+
 export default router;
