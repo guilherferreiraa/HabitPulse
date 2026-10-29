@@ -108,4 +108,23 @@ router.delete("/habits/:id", async (req, res) => {
   }
 });
 
+// Rota GET para o resumo dos hábitos com os respetivos logs
+router.get("/summary", async (req, res) => {
+  try {
+    // Busca todos os hábitos incluindo o histórico de logs associados
+    const habits = await prisma.habit.findMany({
+      include: {
+        logs: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.json(habits);
+  } catch (error) {
+    console.error("Erro ao buscar resumo:", error);
+    return res.status(500).json({ error: "Erro interno ao buscar o resumo." });
+  }
+});
 export default router;
